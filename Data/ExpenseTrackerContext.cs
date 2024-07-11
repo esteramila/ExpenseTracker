@@ -9,11 +9,12 @@ namespace ExpenseTracker.Data
         public ExpenseTrackerContext(DbContextOptions<ExpenseTrackerContext> options)
             : base(options) 
         { }
-        public DbSet<Categories> Categories { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-            modelBuilder.Entity<Categories>()
+            modelBuilder.Entity<Category>()
+             
                 .HasData(new Category[]
                 {
                     new Category() { Id = 1, Name = "Food" },

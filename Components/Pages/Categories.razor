@@ -1,14 +1,15 @@
 ﻿@page "/categories"
+@using ExpenseTracker.Data.Models
 
 
 <h3>Categories</h3>
 <p>mai trebe ceva formular pe aici</p>
 
 @code {
-	// List<Category> categories = new List<Category>
-	// {
-	// 	new Category { Id=1, Name="Food" },
-	// 	new Category { Id=2, Name="House" },
-	// 	new Category { Id=3, Name="Entertainment" }
-	// };
+	List<Category> categories = new List<Category>
+	{
+		new Category { Id=1, Name="Food" },
+		new Category { Id=2, Name="House" },
+		new Category { Id=3, Name="Entertainment" }
+	};
 }

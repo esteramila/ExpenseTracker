@@ -17,31 +17,44 @@
             <li>
                 @category.Name
                 <button @onclick="() => DeleteCategory(category.Id)">Delete</button>
+                <button @onclick="() => StartEdit(category)">Edit</button>
             </li>
         }
     }
 </ul>
 
+@if (editCategory != null)
+{
+    <h5>Edit Category</h5>
+    <form @onsubmit="UpdateCategory">
+        <input type="hidden" @bind="editCategory.Id" />
+        <input type="text" @bind="editCategory.Name" />
+        <button type="submit">Save</button>
+        <button @onclick="CancelEdit">Cancel</button>
+    </form>
+}
+
+<p></p>
 <h5>Add a New Category</h5> 
-@*this boy got that virus*@
 <form @onsubmit="AddCategory">
     <input type="text" @bind="newCategoryName" placeholder="Category Name" />
     <button type="submit">Add</button>
 </form>
 
 @code {
-	List<Category> categories /*= new List<Category>
+    List<Category> categories /*= new List<Category>
 	{
 		new Category { Id=1, Name="Food" },
 		new Category { Id=2, Name="House" },
 		new Category { Id=3, Name="Entertainment" }
 	}*/;
-	private string newCategoryName;
+    private string newCategoryName;
+    private Category editCategory;
 
-	protected override async Task OnInitializedAsync()
-	{
-		categories = await Service.GetAllCategoriesAsync();
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await Service.GetAllCategoriesAsync();
+    }
 
     private async Task AddCategory()
     {
@@ -64,4 +77,25 @@
             categories.Remove(category);
         }
     }
+    private void StartEdit(Category category)
+    {
+        editCategory = new Category { Id = category.Id, Name = category.Name };
+    }
+
+    private async Task UpdateCategory()
+    {
+        await Service.UpdateCategoryAsync(editCategory);
+        var existingCategory = categories.FirstOrDefault(c => c.Id == editCategory.Id);
+        if (existingCategory != null)
+        {
+            existingCategory.Name = editCategory.Name;
+            editCategory = null; // Clear edit mode
+        }
+    }
+
+    private void CancelEdit()
+    {
+        editCategory = null; // Clear edit mode
+    }
+
 }

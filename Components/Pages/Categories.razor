@@ -1,9 +1,33 @@
 ﻿@page "/categories"
+@using ExpenseTracker.Services;
 @using ExpenseTracker.Data.Models
-
+@inject CategoryService Service;
+@rendermode InteractiveServer
 
 <h3>Categories</h3>
-<p>mai trebe ceva formular pe aici</p>
+<ul>
+	@if (categories == null)
+    {
+        <li>Loading...</li>
+    }
+    else
+    {
+        @foreach (var category in categories)
+        {
+            <li>
+                @category.Name
+                <button @onclick="() => DeleteCategory(category.Id)">Delete</button>
+            </li>
+        }
+    }
+</ul>
+
+<h5>Add a New Category</h5> 
+@*this boy got that virus*@
+<form @onsubmit="AddCategory">
+    <input type="text" @bind="newCategoryName" placeholder="Category Name" />
+    <button type="submit">Add</button>
+</form>
 
 @code {
 	List<Category> categories = new List<Category>
@@ -12,4 +36,38 @@
 		new Category { Id=2, Name="House" },
 		new Category { Id=3, Name="Entertainment" }
 	};
+
+	private string newCategoryName;
+
+	protected override async Task OnInitializedAsync()
+	{
+		categories = await Service.GetAllCategoriesAsync();
+	}
+
+	private async Task AddCategory()
+	{
+		if (!string.IsNullOrWhiteSpace(newCategoryName))
+		{
+			var newId = categories.Max(c => c.Id) + 1; // Generate a new Id
+			var newCategory = new Category { Id = newId, Name = newCategoryName };
+			categories.Add(newCategory);
+
+			// Optionally, add the new category to the database
+			// await Service.AddCategoryAsync(newCategory);
+
+			newCategoryName = string.Empty; // Clear the input field
+		}
+	}
+
+	private void DeleteCategory(int id)
+	{
+		var category = categories.FirstOrDefault(c => c.Id == id);
+		if (category != null)
+		{
+			categories.Remove(category);
+
+			// Optionally, delete the category from the database
+			// await Service.DeleteCategoryAsync(category);
+		}
+	}
 }

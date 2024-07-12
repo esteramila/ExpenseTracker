@@ -1,6 +1,7 @@
 using ExpenseTracker.Components;
 using Microsoft.EntityFrameworkCore;
 using ExpenseTracker.Data;
+using ExpenseTracker.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,9 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-//builder.Services.AddRazorPages();
-//builder.Services.AddServerSideBlazor();
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 //builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddScoped<CategoryService>();
 
 // Configure the database context and connection
 builder.Services.AddDbContext<ExpenseTrackerContext>(options =>

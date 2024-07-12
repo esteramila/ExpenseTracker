@@ -30,13 +30,12 @@
 </form>
 
 @code {
-	List<Category> categories = new List<Category>
+	List<Category> categories /*= new List<Category>
 	{
 		new Category { Id=1, Name="Food" },
 		new Category { Id=2, Name="House" },
 		new Category { Id=3, Name="Entertainment" }
-	};
-
+	}*/;
 	private string newCategoryName;
 
 	protected override async Task OnInitializedAsync()
@@ -44,30 +43,25 @@
 		categories = await Service.GetAllCategoriesAsync();
 	}
 
-	private async Task AddCategory()
-	{
-		if (!string.IsNullOrWhiteSpace(newCategoryName))
-		{
-			var newId = categories.Max(c => c.Id) + 1; // Generate a new Id
-			var newCategory = new Category { Id = newId, Name = newCategoryName };
-			categories.Add(newCategory);
+    private async Task AddCategory()
+    {
+        if (!string.IsNullOrWhiteSpace(newCategoryName))
+        {
+            var newCategory = new Category { Name = newCategoryName };
+            newCategory = await Service.AddCategoryAsync(newCategory);
+            categories.Add(newCategory);
 
-			// Optionally, add the new category to the database
-			// await Service.AddCategoryAsync(newCategory);
+            newCategoryName = string.Empty; // Clear the input field
+        }
+    }
 
-			newCategoryName = string.Empty; // Clear the input field
-		}
-	}
-
-	private void DeleteCategory(int id)
-	{
-		var category = categories.FirstOrDefault(c => c.Id == id);
-		if (category != null)
-		{
-			categories.Remove(category);
-
-			// Optionally, delete the category from the database
-			// await Service.DeleteCategoryAsync(category);
-		}
-	}
+    private async Task DeleteCategory(int id)
+    {
+        await Service.DeleteCategoryAsync(id);
+        var category = categories.FirstOrDefault(c => c.Id == id);
+        if (category != null)
+        {
+            categories.Remove(category);
+        }
+    }
 }

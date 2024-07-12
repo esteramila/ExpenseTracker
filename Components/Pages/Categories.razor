@@ -15,7 +15,7 @@
         @foreach (var category in categories)
         {
             <li>
-                @category.Name
+                @category.Id - @category.Name
                 <button @onclick="() => DeleteCategory(category.Id)">Delete</button>
                 <button @onclick="() => StartEdit(category)">Edit</button>
             </li>
@@ -37,9 +37,34 @@
 <p></p>
 <h5>Add a New Category</h5> 
 <form @onsubmit="AddCategory">
+    <input type="number" @bind="newCategoryId" placeholder="Category ID" />
     <input type="text" @bind="newCategoryName" placeholder="Category Name" />
     <button type="submit">Add</button>
 </form>
+
+<p></p>
+<h5>Search Category by ID</h5>
+<form @onsubmit="SearchCategory">
+    <input type="number" @bind="searchCategoryId" placeholder="Category ID" />
+    <button type="submit">Search</button>
+</form>
+
+@if (searchResultCategory != null)
+{
+    <div>
+        <p></p>
+        <h6>Search Result:</h6>
+        <p>@searchResultCategory.Name</p>
+    </div>
+}
+else if (searchAttempted)
+{
+    <div>
+        <p></p>
+        <h6>Search Result:</h6>
+        <p>Category not found.</p>
+    </div>
+}
 
 @code {
     List<Category> categories /*= new List<Category>
@@ -48,8 +73,12 @@
 		new Category { Id=2, Name="House" },
 		new Category { Id=3, Name="Entertainment" }
 	}*/;
+    private int newCategoryId;
     private string newCategoryName;
     private Category editCategory;
+    private int searchCategoryId;
+    private Category searchResultCategory;
+    private bool searchAttempted;
 
     protected override async Task OnInitializedAsync()
     {
@@ -60,10 +89,11 @@
     {
         if (!string.IsNullOrWhiteSpace(newCategoryName))
         {
-            var newCategory = new Category { Name = newCategoryName };
+            var newCategory = new Category { Id = newCategoryId, Name = newCategoryName };
             newCategory = await Service.AddCategoryAsync(newCategory);
             categories.Add(newCategory);
 
+            newCategoryId = 0; // Clear the input field
             newCategoryName = string.Empty; // Clear the input field
         }
     }
@@ -98,4 +128,9 @@
         editCategory = null; // Clear edit mode
     }
 
+    private async Task SearchCategory()
+    {
+        searchResultCategory = await Service.GetCategoryByIdAsync(searchCategoryId);
+        searchAttempted = true;
+    }
 }

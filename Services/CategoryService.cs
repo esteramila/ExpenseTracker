@@ -39,5 +39,10 @@ namespace ExpenseTracker.Services
             _context.Entry(category).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Category> GetCategoryByIdAsync(int id)
+        {
+            return await _context.Categories.FindAsync(id);
+        }
     }
 }

@@ -1,9 +1,10 @@
 ﻿@page "/categories"
 @using ExpenseTracker.Services;
-@using ExpenseTracker.Data.Models
+@using ExpenseTracker.Data.Models;
 @inject CategoryService Service;
 @rendermode InteractiveServer
 
+<PageTitle>Categories</PageTitle>
 <h3>Categories</h3>
 <ul>
 	@if (categories == null)

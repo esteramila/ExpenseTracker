@@ -1,0 +1,82 @@
+﻿@page "/expenses"
+@rendermode InteractiveServer
+@using ExpenseTracker.Services;
+@using ExpenseTracker.Data.Models;
+@inject ExpenseService ExpenseService;
+@inject CategoryService CategoryService;
+@inject NavigationManager NavigationManager;
+
+<PageTitle>Expenses</PageTitle>
+<h3>Expenses</h3>
+
+@if (expenses == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Planned</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var expense in expenses)
+            {
+                <tr>
+                    <td>@expense.Title</td>
+                    <td>@expense.Date.ToShortDateString()</td>
+                    <td>@expense.Amount $</td>
+                    <td>@(expense.Planned ? "Planificat" : "Neprevăzut")</td>
+                    <td>@expense.Category?.Name</td>
+                    <td>
+                        <button @onclick="() => EditExpense(expense.Id)">Edit</button>
+                        <button @onclick="() => DeleteExpense(expense.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<button @onclick="NavigateToAddExpense">Add Expense</button>
+
+@code {
+    private List<Expense> expenses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        expenses = await ExpenseService.GetAllExpensesAsync();
+        foreach (var expense in expenses)
+        {
+            expense.Category = await CategoryService.GetCategoryByIdAsync(expense.CategoryId);
+        }
+    }
+
+    private void EditExpense(int id)
+    {
+        NavigationManager.NavigateTo($"/expenses/{id}");
+    }
+
+    private async Task DeleteExpense(int id)
+    {
+        await ExpenseService.DeleteExpenseAsync(id);
+        expenses = await ExpenseService.GetAllExpensesAsync();
+        foreach (var expense in expenses)
+        {
+            expense.Category = await CategoryService.GetCategoryByIdAsync(expense.CategoryId);
+        }
+    }
+
+    private void NavigateToAddExpense()
+    {
+        NavigationManager.NavigateTo("/expenses/new");
+    }
+
+
+}

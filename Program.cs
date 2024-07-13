@@ -12,6 +12,9 @@ builder.Services.AddRazorComponents()
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 //builder.Services.AddSingleton<WeatherForecastService>();
+
+// Adaugati inregistrarea serviciilor aici
+builder.Services.AddScoped<ExpenseService>();
 builder.Services.AddScoped<CategoryService>();
 
 // Configure the database context and connection

@@ -1,0 +1,111 @@
+﻿@page "/expenses/{expenseId}"
+@rendermode InteractiveServer
+@using ExpenseTracker.Services;
+@using ExpenseTracker.Data.Models;
+@inject ExpenseService ExpenseService;
+@inject CategoryService CategoryService
+@inject NavigationManager NavigationManager;
+
+<PageTitle>EditExpense</PageTitle>
+<h3>EditExpense</h3>
+
+@if (expense == null || categories == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ExpenseForm expense="expense"
+                 categories="categories"
+                 OnValidSubmit="HandleValidSubmit" />
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger">@errorMessage</p>
+    }
+}
+
+@code {
+    private Expense expense; // Added to initialize expense object
+    private List<Category> categories; // Added to initialize categories list
+    private string errorMessage; // Added for error handling
+    [Parameter]
+    public string expenseId { get; set; }  // Keep the parameter as string
+
+    private int parsedExpenseId;  // Define a private int field to store parsed value
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Parse the string expenseId to an integer
+        if (!int.TryParse(expenseId, out parsedExpenseId))
+        {
+            // Handle parsing failure if needed
+            throw new ArgumentException("Invalid expenseId format.");
+        }
+
+
+        categories = await CategoryService.GetAllCategoriesAsync();
+
+        // Fetch expense details using parsedExpenseId
+        try
+        {
+            expense = await ExpenseService.GetExpenseByIdAsync(parsedExpenseId);
+            if (expense == null)
+            {
+                throw new InvalidOperationException($"Expense with ID {parsedExpenseId} not found.");
+            }
+
+            // Ensure the Date is set to UTC
+            if (expense.Date.Kind == DateTimeKind.Unspecified)
+            {
+                expense.Date = DateTime.SpecifyKind(expense.Date, DateTimeKind.Utc);
+            }
+            else
+            {
+                expense.Date = expense.Date.ToUniversalTime();
+            }
+
+            categories = await CategoryService.GetAllCategoriesAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = GetInnermostExceptionMessage(ex);
+            Console.Error.WriteLine(errorMessage);
+        }
+    }
+
+
+    // Use parsedExpenseId to fetch the expense details
+
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            // Ensure the Date is set to UTC
+            if (expense.Date.Kind == DateTimeKind.Unspecified)
+            {
+                expense.Date = DateTime.SpecifyKind(expense.Date, DateTimeKind.Utc);
+            }
+            else
+            {
+                expense.Date = expense.Date.ToUniversalTime();
+            }
+            await ExpenseService.UpdateExpenseAsync(expense);
+            NavigationManager.NavigateTo("/expenses");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = GetInnermostExceptionMessage(ex);
+            // Log the error message or show it in the UI
+            Console.Error.WriteLine(errorMessage);
+        }
+    }
+
+    private string GetInnermostExceptionMessage(Exception ex)
+    {
+        while (ex.InnerException != null) ex = ex.InnerException;
+        return ex.Message;
+    }
+}

@@ -1,0 +1,61 @@
+﻿@using ExpenseTracker.Services;
+@using ExpenseTracker.Data.Models;
+@inject ExpenseService ExpenseService;
+@inject CategoryService CategoryService
+
+<h3>ExpenseForm</h3>
+
+@if (categories == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <form @onsubmit="HandleValidSubmit">
+        <div>
+            <label for="title">Title</label>
+            <input type="text" id="title" @bind="expense.Title" required />
+        </div>
+        <div>
+            <label for="date">Date</label>
+            <input type="date" id="date" @bind="expense.Date" required />
+        </div>
+        <div>
+            <label for="amount">Amount</label>
+            <input type="number" id="amount" step="0.01" @bind="expense.Amount" required />
+        </div>
+        <div>
+            <label for="planned">Planned</label>
+            <input type="checkbox" id="planned" @bind="expense.Planned" />
+        </div>
+        <div>
+            <label for="category">Category</label>
+            <select id="category" @bind="expense.CategoryId" required>
+                <option value="">Select a category</option>
+                @foreach (var category in categories)
+                {
+                    <option value="@category.Id">@category.Name</option>
+                }
+            </select>
+        </div>
+        <button type="submit">@SubmitButtonText</button>
+    </form>
+}
+
+@code {
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [Parameter]
+    public Expense expense { get; set; }
+
+    [Parameter]
+    public List<Category> categories { get; set; }
+
+    private string SubmitButtonText => expense.Id == 0 ? "Add Expense" : "Save";
+
+    private async Task HandleValidSubmit()
+    {
+        await OnValidSubmit.InvokeAsync();
+    }
+}

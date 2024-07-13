@@ -35,6 +35,11 @@
     </form>
 }
 
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+
 <p></p>
 <h5>Add a New Category</h5> 
 <form @onsubmit="AddCategory">
@@ -80,6 +85,7 @@ else if (searchAttempted)
     private int searchCategoryId;
     private Category searchResultCategory;
     private bool searchAttempted;
+    private string errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,12 +121,29 @@ else if (searchAttempted)
 
     private async Task UpdateCategory()
     {
-        await Service.UpdateCategoryAsync(editCategory);
-        var existingCategory = categories.FirstOrDefault(c => c.Id == editCategory.Id);
-        if (existingCategory != null)
+        try
         {
-            existingCategory.Name = editCategory.Name;
-            editCategory = null; // Clear edit mode
+            if (editCategory != null)
+            {
+                var categoryToUpdate = await Service.GetCategoryByIdAsync(editCategory.Id);
+                if (categoryToUpdate != null)
+                {
+                    categoryToUpdate.Name = editCategory.Name;
+                    await Service.UpdateCategoryAsync(categoryToUpdate);
+
+                    var existingCategory = categories.FirstOrDefault(c => c.Id == editCategory.Id);
+                    if (existingCategory != null)
+                    {
+                        existingCategory.Name = editCategory.Name;
+                        editCategory = null; // Clear edit mode
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = GetInnermostExceptionMessage(ex);
+            Console.Error.WriteLine(errorMessage);
         }
     }
 
@@ -133,5 +156,10 @@ else if (searchAttempted)
     {
         searchResultCategory = await Service.GetCategoryByIdAsync(searchCategoryId);
         searchAttempted = true;
+    }
+    private string GetInnermostExceptionMessage(Exception ex)
+    {
+        while (ex.InnerException != null) ex = ex.InnerException;
+        return ex.Message;
     }
 }

@@ -1,0 +1,78 @@
+﻿@page "/categories/{categoryId:int}"
+@using ExpenseTracker.Services;
+@using ExpenseTracker.Data.Models;
+@inject ExpenseService ExpenseService;
+@inject CategoryService CategoryService
+
+<PageTitle>Category @categoryId</PageTitle>
+<h3>Expenses for Category @category?.Name</h3>
+
+@if (expenses == null)
+{
+	<p>Loading...</p>
+}
+else if (expenses.Count == 0)
+{
+	<p>No expenses found for this category.</p>
+}
+else
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Title</th>
+				<th>Date</th>
+				<th>Amount</th>
+				<th>Planned</th>
+				<th>Category</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var expense in expenses)
+			{
+				<tr>
+					<td>@expense.Title</td>
+					<td>@expense.Date.ToShortDateString()</td>
+					<td>@expense.Amount $</td>
+					<td>@(expense.Planned ? "Planned" : "Unplanned")</td>
+					<td>@expense.Category?.Name</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+	<p class="text-danger">@errorMessage</p>
+}
+
+@code {
+	[Parameter]
+	public int categoryId { get; set; }
+	private Category category;
+	private List<Expense> expenses;
+	private string errorMessage;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			// expenses = await ExpenseService.GetAllExpensesAsync();
+			category = await CategoryService.GetCategoryByIdAsync(categoryId);
+			expenses = await ExpenseService.GetExpensesByCategoryIdAsync(categoryId);
+		}
+		catch (Exception ex)
+		{
+			errorMessage = GetInnermostExceptionMessage(ex);
+			// Log the error message or show it in the UI
+			Console.Error.WriteLine(errorMessage);
+		}
+	}
+
+	private string GetInnermostExceptionMessage(Exception ex)
+	{
+		while (ex.InnerException != null) ex = ex.InnerException;
+		return ex.Message;
+	}
+}

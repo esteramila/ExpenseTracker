@@ -1,0 +1,70 @@
+﻿@using ExpenseTracker.Services;
+@using ExpenseTracker.Data.Models;
+@inject ExpenseService ExpenseService;
+@inject CategoryService CategoryService;
+
+<h3>ExpensesList</h3>
+
+@if (expenses == null || !expenses.Any())
+{
+    <p>No expenses available.</p> <!-- Debugging line: nu ajunge aici -->
+}
+else
+{
+    <p>Number of expenses received: @expenses.Count</p> <!-- Debugging line: nu ajunge aici -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Planned</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var expense in expenses)
+            {
+                <tr>
+                    <td>@expense.Title</td>
+                    <td>@expense.Date.ToShortDateString()</td>
+                    <td>@expense.Amount $</td>
+                    <td>@(expense.Planned ? "Planificat" : "Neprevăzut")</td>
+                    <td>@expense.Category?.Name</td>
+                    <td>
+                        <button @onclick="() => EditExpense(expense.Id)">Edit</button>
+                        <button @onclick="() => DeleteExpense(expense.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public List<Expense> expenses { get; set; }
+
+    [Parameter]
+    public EventCallback<int> onEditExpense { get; set; }
+
+    [Parameter]
+    public EventCallback<int> onDeleteExpense { get; set; }
+
+    private async Task EditExpense(int id)
+    {
+        if (onEditExpense.HasDelegate)
+        {
+            await onEditExpense.InvokeAsync(id);
+        }
+    }
+
+    private async Task DeleteExpense(int id)
+    {
+        if (onDeleteExpense.HasDelegate)
+        {
+            await onDeleteExpense.InvokeAsync(id);
+        }
+    }
+}

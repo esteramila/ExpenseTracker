@@ -16,7 +16,7 @@
         @foreach (var category in categories)
         {
             <li>
-                @category.Id - @category.Name
+                @category.Id - <a href="/categories/@category.Id">@category.Name</a>
                 <button @onclick="() => DeleteCategory(category.Id)">Delete</button>
                 <button @onclick="() => StartEdit(category)">Edit</button>
             </li>

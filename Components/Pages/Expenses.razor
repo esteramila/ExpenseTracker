@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @using ExpenseTracker.Services;
 @using ExpenseTracker.Data.Models;
+@using ExpenseTracker.Components; <!-- ExpensesList e aici -->
 @inject ExpenseService ExpenseService;
 @inject CategoryService CategoryService;
 @inject NavigationManager NavigationManager;
@@ -15,6 +16,11 @@
 }
 else
 {
+    @* <p>Loaded @expenses.Count expenses.</p> <!-- Debugging line: ajunge aici -->
+    <ExpenseList expenses="expenses" 
+        onEditExpense="EditExpense" 
+        onDeleteExpense="DeleteExpense" /> *@
+
     <table class="table">
         <thead>
             <tr>
@@ -46,30 +52,58 @@ else
 }
 <button @onclick="NavigateToAddExpense">Add Expense</button>
 
+@* <p>Expenses data: @System.Text.Json.JsonSerializer.Serialize(expenses)</p> <!-- Debugging line: se populeaza expenes cu ce trebe -->
+ *@
 @code {
     private List<Expense> expenses;
+    private string errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        expenses = await ExpenseService.GetAllExpensesAsync();
-        foreach (var expense in expenses)
+        try
         {
-            expense.Category = await CategoryService.GetCategoryByIdAsync(expense.CategoryId);
+            expenses = await ExpenseService.GetAllExpensesAsync();
+            foreach (var expense in expenses)
+            {
+                expense.Category = await CategoryService.GetCategoryByIdAsync(expense.CategoryId);
+            }
+            Console.WriteLine($"Loaded {expenses.Count} expenses."); // Debugging line
+        }
+        catch (Exception ex)
+        {
+            errorMessage = GetInnermostExceptionMessage(ex);
+            Console.Error.WriteLine(errorMessage);
         }
     }
 
     private void EditExpense(int id)
     {
+        try
+        {
         NavigationManager.NavigateTo($"/expenses/{id}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = GetInnermostExceptionMessage(ex);
+            Console.Error.WriteLine(errorMessage);
+        }
     }
 
     private async Task DeleteExpense(int id)
     {
+        try
+        {
         await ExpenseService.DeleteExpenseAsync(id);
         expenses = await ExpenseService.GetAllExpensesAsync();
         foreach (var expense in expenses)
         {
             expense.Category = await CategoryService.GetCategoryByIdAsync(expense.CategoryId);
+        }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = GetInnermostExceptionMessage(ex);
+            Console.Error.WriteLine(errorMessage);
         }
     }
 
@@ -78,5 +112,9 @@ else
         NavigationManager.NavigateTo("/expenses/new");
     }
 
-
+    private string GetInnermostExceptionMessage(Exception ex)
+    {
+        while (ex.InnerException != null) ex = ex.InnerException;
+        return ex.Message;
+    }
 }

@@ -44,5 +44,13 @@ namespace ExpenseTracker.Services
         {
             return await _context.Expenses.FindAsync(id);
         }
-    }
+
+		public async Task<List<Expense>> GetExpensesByCategoryIdAsync(int categoryId)
+		{
+			return await _context.Expenses
+				.Where(e => e.CategoryId == categoryId)
+				.ToListAsync();
+		}
+
+	}
 }

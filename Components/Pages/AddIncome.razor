@@ -1,0 +1,43 @@
+﻿@page "/incomes/new"
+@rendermode InteractiveServer
+@using ExpenseTracker.Services;
+@using ExpenseTracker.Data.Models;
+
+@inject IncomeService IncomeService;
+@inject NavigationManager NavigationManager;
+
+<PageTitle>Add Income</PageTitle>
+<h3>Add Income</h3>
+
+<IncomeForm income="income" OnValidSubmit="HandleValidSubmit" />
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+
+@code {
+    private Income income = new Income { Date = DateTime.SpecifyKind(DateTime.Today, DateTimeKind.Utc) };
+    private string errorMessage;
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            income.ConvertDateToUtc(); // Ensure Date is in UTC
+            await IncomeService.AddIncomeAsync(income);
+            NavigationManager.NavigateTo("/incomes");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = GetInnermostExceptionMessage(ex);
+            Console.Error.WriteLine(errorMessage);
+        }
+    }
+
+    private string GetInnermostExceptionMessage(Exception ex)
+    {
+        while (ex.InnerException != null) ex = ex.InnerException;
+        return ex.Message;
+    }
+}

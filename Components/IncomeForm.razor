@@ -1,0 +1,51 @@
+﻿@using ExpenseTracker.Services;
+@using ExpenseTracker.Data.Models;
+@inject ExpenseService ExpenseService;
+@inject CategoryService CategoryService;
+@inject IncomeService IncomeService;
+
+<h3>IncomeForm</h3>
+
+    <form @onsubmit="HandleValidSubmit">
+        <div>
+            <label for="title">Title</label>
+            <input type="text" id="title" @bind="income.Title" required />
+        </div>
+        <div>
+            <label for="date">Date</label>
+            <input type="date" id="date" @bind="income.Date" required />
+        </div>
+        <div>
+            <label for="amount">Amount</label>
+            <input type="number" id="amount" step="0.01" @bind="income.Amount" required />
+        </div>
+        <div>
+        <label for="type">Type</label>
+        <select id="type" @bind="income.Type" required>
+            @foreach (var type in Enum.GetValues(typeof(IncomeType)))
+            {
+                <option value="@type">@type</option>
+            }
+        </select>
+    </div>
+        <button type="submit">@SubmitButtonText</button>
+    </form>
+
+
+@code {
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [Parameter]
+    public Income income { get; set; }
+
+    [Parameter]
+    public List<Type> types { get; set; }
+
+    private string SubmitButtonText => income.Id == 0 ? "Add Income" : "Save";
+
+    private async Task HandleValidSubmit()
+    {
+        await OnValidSubmit.InvokeAsync();
+    }
+}

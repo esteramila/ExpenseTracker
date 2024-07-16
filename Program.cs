@@ -16,6 +16,7 @@ builder.Services.AddServerSideBlazor();
 // Adaugati inregistrarea serviciilor aici
 builder.Services.AddScoped<ExpenseService>();
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<IncomeService>();
 
 // Configure the database context and connection
 builder.Services.AddDbContext<ExpenseTrackerContext>(options =>

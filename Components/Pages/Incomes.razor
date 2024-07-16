@@ -1,0 +1,99 @@
+﻿@page "/incomes"
+@rendermode InteractiveServer
+@using ExpenseTracker.Services;
+@using ExpenseTracker.Data.Models;
+
+@inject IncomeService IncomeService;
+@inject NavigationManager NavigationManager;
+
+<PageTitle>Incomes</PageTitle>
+<h3>Incomes</h3>
+
+@if (incomes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Type</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var income in incomes)
+            {
+                <tr>
+                    <td>@income.Title</td>
+                    <td>@income.Date.ToShortDateString()</td>
+                    <td>@income.Amount $</td>
+                    <td>@income.Type</td>
+                    <td>
+                        <button @onclick="() => EditIncome(income.Id)">Edit</button>
+                        <button @onclick="() => DeleteIncome(income.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<button @onclick="NavigateToAddIncome">Add Income</button>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+
+@code {
+    private List<Income> incomes;
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            incomes = await IncomeService.GetAllIncomesAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = GetInnermostExceptionMessage(ex);
+            Console.Error.WriteLine(errorMessage);
+        }
+    }
+
+    private void EditIncome(int id)
+    {
+        NavigationManager.NavigateTo($"/incomes/{id}");
+    }
+
+    private async Task DeleteIncome(int id)
+    {
+        try
+        {
+            await IncomeService.DeleteIncomeAsync(id);
+            incomes = await IncomeService.GetAllIncomesAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = GetInnermostExceptionMessage(ex);
+            Console.Error.WriteLine(errorMessage);
+        }
+    }
+
+    private void NavigateToAddIncome()
+    {
+        NavigationManager.NavigateTo("/incomes/new");
+    }
+
+    private string GetInnermostExceptionMessage(Exception ex)
+    {
+        while (ex.InnerException != null) ex = ex.InnerException;
+        return ex.Message;
+    }
+}

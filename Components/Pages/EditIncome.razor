@@ -1,0 +1,68 @@
+﻿@page "/incomes/{incomeId:int}"
+@rendermode InteractiveServer
+@using ExpenseTracker.Services;
+@using ExpenseTracker.Data.Models;
+
+@inject IncomeService IncomeService;
+@inject NavigationManager NavigationManager;
+
+<PageTitle>Edit Income</PageTitle>
+<h3>Edit Income</h3>
+
+@if (income == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <IncomeForm income="income" OnValidSubmit="HandleValidSubmit" />
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+
+@code {
+    [Parameter]
+    public int incomeId { get; set; }
+    private Income income;
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            income = await IncomeService.GetIncomeByIdAsync(incomeId);
+            if (income == null)
+            {
+                throw new InvalidOperationException($"Income with ID {incomeId} not found.");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = GetInnermostExceptionMessage(ex);
+            Console.Error.WriteLine(errorMessage);
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            await IncomeService.UpdateIncomeAsync(income);
+            NavigationManager.NavigateTo("/incomes");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = GetInnermostExceptionMessage(ex);
+            Console.Error.WriteLine(errorMessage);
+        }
+    }
+
+    private string GetInnermostExceptionMessage(Exception ex)
+    {
+        while (ex.InnerException != null) ex = ex.InnerException;
+        return ex.Message;
+    }
+}

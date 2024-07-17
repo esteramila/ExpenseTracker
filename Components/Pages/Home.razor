@@ -5,6 +5,7 @@
 @using ExpenseTracker.Data.Models;
 @inject IncomeService IncomeService
 @inject ExpenseService ExpenseService
+@inject CategoryService CategoryService;
 
 <PageTitle>HomeExpense Tracker</PageTitle>
 <h1>Expense Tracker</h1>
@@ -21,10 +22,15 @@
 <button @onclick="() => text = string.Empty">Clear</button>
 <p>@text</p> *@
 
-<h4>Balance</h4>
-<p class="@GetBalanceColorClass()">@balance.ToString("0.00") RON</p>
-
 <div class="grid-container">
+    <div class="balance">
+		<h4>Balance</h4>
+		<p class="@GetBalanceColorClass()">@balance.ToString("0.00") RON</p>
+    </div>
+    <div class="highest_expenses">
+        <h4>Highest Expense</h4>
+        <p>@highestExpenseCategoryName</p>
+    </div>
     <div class="incomes">
         <h4>Incomes</h4>
         <p> @startDateIncomes.ToShortDateString() - @endDateIncomes.ToShortDateString()</p>
@@ -58,7 +64,7 @@
         gap: 20px; /* Gap between columns */
     }
 
-    .incomes, .expenses, .trueExpenses, .falseExpenses {
+    .balance, .highest_expenses, .incomes, .expenses, .trueExpenses, .falseExpenses {
         padding: 10px;
         border: 1px solid #ccc;
         border-radius: 5px;
@@ -88,6 +94,8 @@
     private float balance;
     private float resultPlannedExpenses;
     private float resultUnplannedExpenses;
+
+    private string highestExpenseCategoryName;
 
     protected override async Task OnInitializedAsync()
     {
@@ -123,6 +131,18 @@
                 resultUnplannedExpenses = expenses
                     .Where(expense => !expense.Planned)
                     .Sum(expense => expense.Amount);
+
+                // Category with highest expenses
+                var groupedExpenses = expenses.GroupBy(expense => expense.CategoryId)
+                                              .Select(group => new { CategoryId = group.Key, TotalAmount = group.Sum(expense => expense.Amount) })
+                                              .OrderByDescending(x => x.TotalAmount)
+                                              .FirstOrDefault();
+
+                if (groupedExpenses != null)
+                {
+                    var category = await CategoryService.GetCategoryByIdAsync(groupedExpenses.CategoryId);
+                    highestExpenseCategoryName = category.Name;
+                }
             }
             resultExpensesMonth = await ExpenseService.GetCurrentMonthExpenseSumAsync();
         }

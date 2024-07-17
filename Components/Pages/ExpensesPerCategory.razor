@@ -17,29 +17,7 @@ else if (expenses.Count == 0)
 }
 else
 {
-	<table class="table">
-		<thead>
-			<tr>
-				<th>Title</th>
-				<th>Date</th>
-				<th>Amount</th>
-				<th>Planned</th>
-				<th>Category</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var expense in expenses)
-			{
-				<tr>
-					<td>@expense.Title</td>
-					<td>@expense.Date.ToShortDateString()</td>
-					<td>@expense.Amount $</td>
-					<td>@(expense.Planned ? "Planned" : "Unplanned")</td>
-					<td>@expense.Category?.Name</td>
-				</tr>
-			}
-		</tbody>
-	</table>
+	<ExpensesList expenses="expenses" />
 }
 
 @if (!string.IsNullOrEmpty(errorMessage))

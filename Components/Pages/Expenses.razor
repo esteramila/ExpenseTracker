@@ -16,39 +16,10 @@
 }
 else
 {
-    @* <p>Loaded @expenses.Count expenses.</p> <!-- Debugging line: ajunge aici -->
-    <ExpenseList expenses="expenses" 
+    <p>Loaded @expenses.Count expenses.</p> <!-- Debugging line: ajunge aici -->
+    <ExpensesList expenses="expenses" 
         onEditExpense="EditExpense" 
-        onDeleteExpense="DeleteExpense" /> *@
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Planned</th>
-                <th>Category</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var expense in expenses)
-            {
-                <tr>
-                    <td>@expense.Title</td>
-                    <td>@expense.Date.ToShortDateString()</td>
-                    <td>@expense.Amount $</td>
-                    <td>@(expense.Planned ? "Planificat" : "Neprevăzut")</td>
-                    <td>@expense.Category?.Name</td>
-                    <td>
-                        <button @onclick="() => EditExpense(expense.Id)">Edit</button>
-                        <button @onclick="() => DeleteExpense(expense.Id)">Delete</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+        onDeleteExpense="DeleteExpense" />
 }
 <button @onclick="NavigateToAddExpense">Add Expense</button>
 

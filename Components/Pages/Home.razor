@@ -1,33 +1,133 @@
 ﻿@page "/"
 @page "/home"
 @rendermode InteractiveServer
+@using ExpenseTracker.Services;
+@using ExpenseTracker.Data.Models;
+@inject IncomeService IncomeService
+@inject ExpenseService ExpenseService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>HomeExpense Tracker</PageTitle>
+<h1>Expense Tracker</h1>
+<p>Welcome to your new expense tracking app!</p>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-<Counter IncrementAmount="10" />
+@* <Counter IncrementAmount="10" />
 
 <p>Why doesn't it write what i write? gata merge</p>
 <input @onchange="InputChanged" />
 <p>@message</p>
 
-@code {
-    string message = "";
-
-    void InputChanged(ChangeEventArgs e)
-    {
-        message = (string)e.Value;
-    }
-}
-
 <p>Why won't it clear the text area? gata merge</p>
 <input @bind="text" />
 <button @onclick="() => text = string.Empty">Clear</button>
-<p>@text</p>
+<p>@text</p> *@
+
+<h4>Balance</h4>
+<p class="@GetBalanceColorClass()">@balance.ToString("0.00") RON</p>
+
+<div class="grid-container">
+    <div class="incomes">
+        <h4>Incomes</h4>
+        <p> @startDateIncomes.ToShortDateString() - @endDateIncomes.ToShortDateString()</p>
+        <p>@resultIncomes RON</p>
+        <h5>Current Month</h5>
+        <p>@resultIncomesMonth.ToString("0.00") RON</p>
+    </div>
+    <div class="expenses">
+        <h4>Expenses</h4>
+        <p> @startDateExpenses.ToShortDateString() - @endDateExpenses.ToShortDateString()</p>
+        <p>@resultExpenses RON</p>
+        <h5>Current Month</h5>
+        <p>@resultExpensesMonth.ToString("0.00") RON</p>
+    </div>
+</div>
+
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+        gap: 20px; /* Gap between columns */
+    }
+
+    .incomes, .expenses {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+</style>
 
 @code {
-    string text = "";
+    /* string message = "";
+
+    void InputChanged(ChangeEventArgs e)
+        {
+        message = (string)e.Value;
+    }
+    string text = ""; */
+    private IEnumerable<Income> incomes;
+    private float resultIncomes;
+    private DateTime startDateIncomes;
+    private DateTime endDateIncomes;
+    private float resultIncomesMonth;
+
+    private IEnumerable<Expense> expenses;
+    private float resultExpenses;
+    private DateTime startDateExpenses;
+    private DateTime endDateExpenses;
+    private float resultExpensesMonth;
+
+    private float balance;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var incomes = await IncomeService.GetAllIncomesAsync();
+            if (incomes.Any())
+            {
+                startDateIncomes = await IncomeService.GetEarliestIncomeDateAsync();
+                endDateIncomes = await IncomeService.GetLatestIncomeDateAsync();
+                resultIncomes = incomes.Sum(income => income.Amount);
+            }
+            resultIncomesMonth = await IncomeService.GetCurrentMonthIncomeSumAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading incomes: {ex.Message}");
+        }
+
+        try
+        {
+            var expenses = await ExpenseService.GetAllExpensesAsync();
+            if (expenses.Any())
+            {
+                startDateExpenses = await ExpenseService.GetEarliestExpenseDateAsync();
+                endDateExpenses = await ExpenseService.GetLatestExpenseDateAsync();
+                resultExpenses = expenses.Sum(expense => expense.Amount);
+            }
+            resultExpensesMonth = await ExpenseService.GetCurrentMonthExpenseSumAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading incomes: {ex.Message}");
+        }
+
+        balance = resultIncomes - resultExpenses;
+    }
+
+    // Method to determine CSS class based on balance value
+    private string GetBalanceColorClass()
+    {
+        if (balance > 0)
+        {
+            return "text-success"; // Use Bootstrap or your CSS framework class for green
+        }
+        else if (balance < 0)
+        {
+            return "text-danger"; // Use Bootstrap or your CSS framework class for red
+        }
+        else
+        {
+            return ""; // No special class if balance is zero
+        }
+    }
 }

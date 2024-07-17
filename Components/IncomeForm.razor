@@ -4,31 +4,31 @@
 @inject CategoryService CategoryService;
 @inject IncomeService IncomeService;
 
-<h3>IncomeForm</h3>
+@* <h3>IncomeForm</h3> *@
 
-    <form @onsubmit="HandleValidSubmit">
-        <div>
+<form @onsubmit="HandleValidSubmit">
+    <div class="form-group mt-3">
             <label for="title">Title</label>
-            <input type="text" id="title" @bind="income.Title" required />
+        <input type="text" class="form-control" id="title" @bind="income.Title" required />
         </div>
-        <div>
+    <div class="form-group mt-3">
             <label for="date">Date</label>
-            <input type="date" id="date" @bind="income.Date" required />
-        </div>
-        <div>
+        <input type="date" class="form-control" id="date" @bind="income.Date" required />
+        </div >
+    <div class="form-group mt-3">
             <label for="amount">Amount</label>
-            <input type="number" id="amount" step="0.01" @bind="income.Amount" required />
+        <input type="number" class="form-control" id="amount" step="0.01" @bind="income.Amount" required />
         </div>
-        <div>
+    <div class="form-group mt-3">
         <label for="type">Type</label>
-        <select id="type" @bind="income.Type" required>
+        <select class="form-control" id="type" @bind="income.Type" required>
             @foreach (var type in Enum.GetValues(typeof(IncomeType)))
             {
                 <option value="@type">@type</option>
             }
         </select>
     </div>
-        <button type="submit">@SubmitButtonText</button>
+    <button type="submit" class="btn btn-primary mt-3">@SubmitButtonText</button>
     </form>
 
 

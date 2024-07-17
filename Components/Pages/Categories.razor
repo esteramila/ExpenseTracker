@@ -17,8 +17,8 @@
         {
             <li>
                 @category.Id - <a href="/categories/@category.Id">@category.Name</a>
-                <button @onclick="() => DeleteCategory(category.Id)">Delete</button>
-                <button @onclick="() => StartEdit(category)">Edit</button>
+                <button @onclick="() => DeleteCategory(category.Id)" class="btn btn-primary">Delete</button>
+                <button @onclick="() => StartEdit(category)" class="btn btn-primary">Edit</button>
             </li>
         }
     }
@@ -30,8 +30,8 @@
     <form @onsubmit="UpdateCategory">
         <input type="hidden" @bind="editCategory.Id" />
         <input type="text" @bind="editCategory.Name" />
-        <button type="submit">Save</button>
-        <button @onclick="CancelEdit">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button @onclick="CancelEdit" class="btn btn-primary">Cancel</button>
     </form>
 }
 
@@ -45,14 +45,14 @@
 <form @onsubmit="AddCategory">
     <input type="number" @bind="newCategoryId" placeholder="Category ID" />
     <input type="text" @bind="newCategoryName" placeholder="Category Name" />
-    <button type="submit">Add</button>
+    <button type="submit" class="btn btn-primary">Add</button>
 </form>
 
 <p></p>
 <h5>Search Category by ID</h5>
 <form @onsubmit="SearchCategory">
     <input type="number" @bind="searchCategoryId" placeholder="Category ID" />
-    <button type="submit">Search</button>
+    <button type="submit" class="btn btn-primary">Search</button>
 </form>
 
 @if (searchResultCategory != null)

@@ -14,7 +14,7 @@ namespace ExpenseTracker.Services
 
         public async Task<List<Expense>> GetAllExpensesAsync()
         {
-            return await _context.Expenses.ToListAsync();
+            return await _context.Expenses.Include(x=>x.Category).ToListAsync();
         }
 
         public async Task<Expense> AddExpenseAsync(Expense expense)
@@ -52,5 +52,23 @@ namespace ExpenseTracker.Services
 				.ToListAsync();
 		}
 
-	}
+        public async Task<DateTime> GetEarliestExpenseDateAsync()
+        {
+            return await _context.Expenses.MinAsync(expense => expense.Date);
+        }
+
+        public async Task<DateTime> GetLatestExpenseDateAsync()
+        {
+            return await _context.Expenses.MaxAsync(expense => expense.Date);
+        }
+
+        public async Task<float> GetCurrentMonthExpenseSumAsync()
+        {
+            var currentDate = DateTime.UtcNow;
+            return await _context.Expenses
+                .Where(expense => expense.Date.Year == currentDate.Year && expense.Date.Month == currentDate.Month)
+                .SumAsync(expense => expense.Amount);
+        }
+
+    }
 }

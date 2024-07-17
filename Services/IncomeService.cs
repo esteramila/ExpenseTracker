@@ -46,6 +46,23 @@ namespace ExpenseTracker.Services
 		{
 			return await _context.Incomes.FindAsync(id);
 		}
+        public async Task<DateTime> GetEarliestIncomeDateAsync()
+        {
+            return await _context.Incomes.MinAsync(income => income.Date);
+        }
 
-	}
+        public async Task<DateTime> GetLatestIncomeDateAsync()
+        {
+            return await _context.Incomes.MaxAsync(income => income.Date);
+        }
+
+        public async Task<float> GetCurrentMonthIncomeSumAsync()
+        {
+            var currentDate = DateTime.UtcNow;
+            return await _context.Incomes
+                .Where(income => income.Date.Year == currentDate.Year && income.Date.Month == currentDate.Month)
+                .SumAsync(income => income.Amount);
+        }
+
+    }
 }

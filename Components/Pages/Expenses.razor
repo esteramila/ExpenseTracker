@@ -34,10 +34,10 @@ else
         try
         {
             expenses = await ExpenseService.GetAllExpensesAsync();
-            foreach (var expense in expenses)
-            {
-                expense.Category = await CategoryService.GetCategoryByIdAsync(expense.CategoryId);
-            }
+            // foreach (var expense in expenses)
+            // {
+            //     expense.Category = await CategoryService.GetCategoryByIdAsync(expense.CategoryId);
+            // }
             Console.WriteLine($"Loaded {expenses.Count} expenses."); // Debugging line
         }
         catch (Exception ex)

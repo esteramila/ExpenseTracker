@@ -15,6 +15,16 @@
 }
 else
 {
+    <div>
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" @bind="startDate" />
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate" @bind="endDate" />
+        <button @onclick="ApplyFilter">Filter</button>
+    </div>
+
+    <p>Total Incomes: @filteredIncomes.Sum(i => i.Amount) RON</p> <!-- Display the total sum of filtered incomes -->
+
     <table class="table">
         <thead>
             <tr>
@@ -26,7 +36,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var income in incomes)
+            @foreach (var income in filteredIncomes)
             {
                 <tr>
                     <td>@income.Title</td>
@@ -54,11 +64,16 @@ else
     private List<Income> incomes;
     private string errorMessage;
 
+    private List<Income> filteredIncomes;
+    private DateTime? startDate;
+    private DateTime? endDate;
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
             incomes = await IncomeService.GetAllIncomesAsync();
+            filteredIncomes = new List<Income>(incomes); // Initially display all incomes
         }
         catch (Exception ex)
         {
@@ -78,6 +93,7 @@ else
         {
             await IncomeService.DeleteIncomeAsync(id);
             incomes = await IncomeService.GetAllIncomesAsync();
+            ApplyFilter(); // Reapply the filter after deleting an income
         }
         catch (Exception ex)
         {
@@ -89,6 +105,18 @@ else
     private void NavigateToAddIncome()
     {
         NavigationManager.NavigateTo("/incomes/new");
+    }
+
+    private void ApplyFilter()
+    {
+        if (startDate.HasValue && endDate.HasValue)
+        {
+            filteredIncomes = incomes.Where(income => income.Date >= startDate.Value && income.Date <= endDate.Value).ToList();
+        }
+        else
+        {
+            filteredIncomes = new List<Income>(incomes);
+        }
     }
 
     private string GetInnermostExceptionMessage(Exception ex)

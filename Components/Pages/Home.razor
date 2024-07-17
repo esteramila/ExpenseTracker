@@ -39,6 +39,16 @@
         <h5>Current Month</h5>
         <p>@resultExpensesMonth.ToString("0.00") RON</p>
     </div>
+    <div class="trueExpenses">
+        <h4>Planned Expenses</h4>
+        <p> @startDateExpenses.ToShortDateString() - @endDateExpenses.ToShortDateString()</p>
+        <p>@resultPlannedExpenses.ToString("0.00") RON</p>
+    </div>
+    <div class="falseExpenses">
+        <h4>Unplanned Expenses</h4>
+        <p> @startDateExpenses.ToShortDateString() - @endDateExpenses.ToShortDateString()</p>
+        <p>@resultUnplannedExpenses.ToString("0.00") RON</p>
+    </div>
 </div>
 
 <style>
@@ -48,7 +58,7 @@
         gap: 20px; /* Gap between columns */
     }
 
-    .incomes, .expenses {
+    .incomes, .expenses, .trueExpenses, .falseExpenses {
         padding: 10px;
         border: 1px solid #ccc;
         border-radius: 5px;
@@ -76,6 +86,8 @@
     private float resultExpensesMonth;
 
     private float balance;
+    private float resultPlannedExpenses;
+    private float resultUnplannedExpenses;
 
     protected override async Task OnInitializedAsync()
     {
@@ -103,6 +115,14 @@
                 startDateExpenses = await ExpenseService.GetEarliestExpenseDateAsync();
                 endDateExpenses = await ExpenseService.GetLatestExpenseDateAsync();
                 resultExpenses = expenses.Sum(expense => expense.Amount);
+
+                // Planned/Unplanned
+                resultPlannedExpenses = expenses
+                    .Where(expense => expense.Planned)
+                    .Sum(expense => expense.Amount);
+                resultUnplannedExpenses = expenses
+                    .Where(expense => !expense.Planned)
+                    .Sum(expense => expense.Amount);
             }
             resultExpensesMonth = await ExpenseService.GetCurrentMonthExpenseSumAsync();
         }

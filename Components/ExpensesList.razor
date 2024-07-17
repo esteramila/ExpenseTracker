@@ -3,11 +3,11 @@
 @inject ExpenseService ExpenseService;
 @inject CategoryService CategoryService;
 
-<h3>ExpensesList</h3>
+@* <h3>ExpensesList</h3> *@
 
 @if (expenses == null || !expenses.Any())
 {
-    <p>No expenses available.</p> <!-- Debugging line: nu ajunge aici -->
+    @* <p>No expenses available.</p> *@ <!-- Debugging line: nu ajunge aici -->
 }
 else
 {
@@ -30,7 +30,7 @@ else
                     <td>@expense.Title</td>
                     <td>@expense.Date.ToShortDateString()</td>
                     <td>@expense.Amount $</td>
-                    <td>@(expense.Planned ? "Planificat" : "Neprevăzut")</td>
+                    <td>@(expense.Planned ? "Planned" : "Unplanned")</td>
                     <td>@expense.Category?.Name</td>
                     <td>
                         <button @onclick="() => EditExpense(expense.Id)">Edit</button>

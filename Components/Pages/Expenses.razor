@@ -16,8 +16,17 @@
 }
 else
 {
-    <p>Loaded @expenses.Count expenses.</p> <!-- Debugging line: ajunge aici -->
-    <ExpensesList expenses="expenses" 
+    <label for="filter">Filter expenses:</label>
+    <select id="filter" @onchange="FilterExpenses">
+        <option value="All">All</option>
+        <option value="Planned">Planned</option>
+        <option value="Unplanned">Unplanned</option>
+    </select>
+
+    <p>Total Expenses: @filteredExpenses.Sum(e => e.Amount) RON</p> <!-- Display the total sum of filtered expenses -->
+
+    @* <p>Loaded @filteredExpenses.Count expenses.</p> *@ <!-- Debugging line: ajunge aici -->
+    <ExpensesList expenses="filteredExpenses"
         onEditExpense="EditExpense" 
         onDeleteExpense="DeleteExpense" />
 }
@@ -29,6 +38,9 @@ else
     private List<Expense> expenses;
     private string errorMessage;
 
+    private List<Expense> filteredExpenses;
+    private string selectedFilter = "All";
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -37,7 +49,8 @@ else
             // foreach (var expense in expenses)
             // {
             //     expense.Category = await CategoryService.GetCategoryByIdAsync(expense.CategoryId);
-            // }
+            // } //no need to fetch it again, we included the expenses in the category class
+            filteredExpenses = new List<Expense>(expenses); // Initially display all expenses
             Console.WriteLine($"Loaded {expenses.Count} expenses."); // Debugging line
         }
         catch (Exception ex)
@@ -51,7 +64,7 @@ else
     {
         try
         {
-        NavigationManager.NavigateTo($"/expenses/{id}");
+            NavigationManager.NavigateTo($"/expenses/{id}");
         }
         catch (Exception ex)
         {
@@ -64,12 +77,9 @@ else
     {
         try
         {
-        await ExpenseService.DeleteExpenseAsync(id);
-        expenses = await ExpenseService.GetAllExpensesAsync();
-        foreach (var expense in expenses)
-        {
-            expense.Category = await CategoryService.GetCategoryByIdAsync(expense.CategoryId);
-        }
+            await ExpenseService.DeleteExpenseAsync(id);
+            expenses = await ExpenseService.GetAllExpensesAsync();
+            ApplyFilter(); // Reapply the filter after deleting an expense
         }
         catch (Exception ex)
         {
@@ -81,6 +91,28 @@ else
     private void NavigateToAddExpense()
     {
         NavigationManager.NavigateTo("/expenses/new");
+    }
+
+    private void FilterExpenses(ChangeEventArgs e)
+    {
+        selectedFilter = e.Value.ToString();
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        if (selectedFilter == "Planned")
+        {
+            filteredExpenses = expenses.Where(expense => expense.Planned).ToList();
+        }
+        else if (selectedFilter == "Unplanned")
+        {
+            filteredExpenses = expenses.Where(expense => !expense.Planned).ToList();
+        }
+        else
+        {
+            filteredExpenses = new List<Expense>(expenses);
+        }
     }
 
     private string GetInnermostExceptionMessage(Exception ex)

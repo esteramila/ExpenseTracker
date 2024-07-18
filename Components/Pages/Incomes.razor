@@ -9,22 +9,27 @@
 <PageTitle>Incomes</PageTitle>
 <h3>Incomes</h3>
 
+<div class="grid-container">
+    
 @if (incomes == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <div>
+	<div class="bloc">
         <label for="startDate">Start Date:</label>
         <input type="date" id="startDate" @bind="startDate" />
         <label for="endDate">End Date:</label>
         <input type="date" id="endDate" @bind="endDate" />
-        <button @onclick="ApplyFilter">Filter</button>
+        <button @onclick="ApplyFilter" class="btn btn-primary">Filter</button>
     </div>
 
+    <div class="bloc">
     <p>Total Incomes: @filteredIncomes.Sum(i => i.Amount) RON</p> <!-- Display the total sum of filtered incomes -->
+    </div>
 
+    <div class="bloc">
     <table class="table">
         <thead>
             <tr>
@@ -44,21 +49,51 @@ else
                     <td>@income.Amount $</td>
                     <td>@income.Type</td>
                     <td>
-                        <button @onclick="() => EditIncome(income.Id)">Edit</button>
-                        <button @onclick="() => DeleteIncome(income.Id)">Delete</button>
+                        <button @onclick="() => EditIncome(income.Id)" class="btn btn-primary">Edit</button>
+                        <button @onclick="() => DeleteIncome(income.Id)" class="btn btn-danger">Delete</button>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
+    </div>
 }
 
-<button @onclick="NavigateToAddIncome">Add Income</button>
+<button @onclick="NavigateToAddIncome" class="btn btn-success">Add Income</button>
 
+</div>
 @if (!string.IsNullOrEmpty(errorMessage))
 {
     <p class="text-danger">@errorMessage</p>
 }
+
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr); /* Two equal columns */
+        gap: 20px; /* Gap between columns */
+    }
+
+    .bloc {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .card {
+        color: black;
+    }
+
+    .badge {
+        color: #fff !important; /* Ensuring text is white */
+        background-color: #007bff !important; /* Ensuring background color is primary */
+    }
+
+    .list-group-item a {
+        text-decoration: none;
+        color: white; /* Text color for badge links */
+    }
+</style>
 
 @code {
     private List<Income> incomes;

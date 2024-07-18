@@ -10,30 +10,66 @@
 <PageTitle>Expenses</PageTitle>
 <h3>Expenses</h3>
 
+<div class="grid-container">
 @if (expenses == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
+        <div class="bloc">
     <label for="filter">Filter expenses:</label>
     <select id="filter" @onchange="FilterExpenses">
         <option value="All">All</option>
         <option value="Planned">Planned</option>
         <option value="Unplanned">Unplanned</option>
     </select>
+    </div>
 
+        <div class="bloc">
     <p>Total Expenses: @filteredExpenses.Sum(e => e.Amount) RON</p> <!-- Display the total sum of filtered expenses -->
-
+    </div>
     @* <p>Loaded @filteredExpenses.Count expenses.</p> *@ <!-- Debugging line: ajunge aici -->
+        <div class="bloc">
     <ExpensesList expenses="filteredExpenses"
         onEditExpense="EditExpense" 
         onDeleteExpense="DeleteExpense" />
+        </div>
 }
-<button @onclick="NavigateToAddExpense">Add Expense</button>
+<button @onclick="NavigateToAddExpense" class="btn btn-success">Add Expense</button>
 
+</div>
 @* <p>Expenses data: @System.Text.Json.JsonSerializer.Serialize(expenses)</p> <!-- Debugging line: se populeaza expenes cu ce trebe -->
  *@
+
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr); /* Two equal columns */
+        gap: 20px; /* Gap between columns */
+    }
+
+    .bloc {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .card {
+        color: black;
+    }
+
+    .badge {
+        color: #fff !important; /* Ensuring text is white */
+        background-color: #007bff !important; /* Ensuring background color is primary */
+    }
+
+    .list-group-item a {
+        text-decoration: none;
+        color: white; /* Text color for badge links */
+    }
+</style>
+
 @code {
     private List<Expense> expenses;
     private string errorMessage;

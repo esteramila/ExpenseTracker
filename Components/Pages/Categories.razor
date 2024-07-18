@@ -7,73 +7,117 @@
 <PageTitle>Categories</PageTitle>
 <h3>Categories</h3>
 
-<h5>Search Category by ID</h5>
-<form @onsubmit="SearchCategory">
-    <input type="number" class="form-group" @bind="searchCategoryId" placeholder="Category ID" />
-    <button type="submit" class="btn btn-primary">Search</button>
-</form>
+<div class="grid-container">
+    <div class="bloc">
+        <h5>Search Category by ID</h5>
+        <form @onsubmit="SearchCategory">
+            <input type="number" class="form-group" @bind="searchCategoryId" placeholder="Category ID" />
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
 
-<div class="card" style="width: 18rem;">
-    <ul class="list-group list-group-flush">
-	    @if (categories == null)
+    <div class="bloc">
+        @if (searchResultCategory != null)
         {
-            <li class="list-group-item">Loading...</li>
+	        <div>
+		        <p></p>
+		        <h6>Search Result:</h6>
+		        <p>@searchResultCategory.Name</p>
+	        </div>
         }
-        else
+        else if (searchAttempted)
         {
-            @foreach (var category in categories)
+	        <div>
+		        <p></p>
+		        <h6>Search Result:</h6>
+		        <p>Category not found.</p>
+	        </div>
+        }
+    </div>
+
+    <div class="bloc">
+    <div class="card" style="width: 100%;">
+        <ul class="list-group list-group-flush">
+	        @if (categories == null)
             {
-                <li class="list-group-item">
-                    <a href="/categories/@category.Id" class="badge badge-primary">@category.Id - @category.Name</a>
-                    <button @onclick="() => DeleteCategory(category.Id)" class="btn btn-primary">Delete</button>
-                    <button @onclick="() => StartEdit(category)" class="btn btn-primary">Edit</button>
-                </li>
+                <li class="list-group-item">Loading...</li>
             }
+            else
+            {
+                @foreach (var category in categories)
+                {
+                    <li class="list-group-item">
+                        <a href="/categories/@category.Id" class="badge badge-primary">@category.Id - @category.Name</a>
+							<button @onclick="() => StartEdit(category)" class="btn btn-primary">Edit</button>
+                            <button @onclick="() => DeleteCategory(category.Id)" class="btn btn-danger">Delete</button>
+                        
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+    </div>
+
+    <div class="bloc">
+        @if (editCategory != null)
+        {
+            <h5>Edit Category</h5>
+            <form @onsubmit="UpdateCategory">
+                <input type="hidden" class="form-group" @bind="editCategory.Id" />
+                <input type="text" class="form-group" @bind="editCategory.Name" />
+                <button type="submit" class="btn btn-success">Save</button>
+                <button @onclick="CancelEdit" class="btn btn-primary">Cancel</button>
+            </form>
         }
-    </ul>
-</div>
+    </div>
 
-@if (editCategory != null)
-{
-    <h5>Edit Category</h5>
-    <form @onsubmit="UpdateCategory">
-        <input type="hidden" class="form-group" @bind="editCategory.Id" />
-        <input type="text" @bind="editCategory.Name" />
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button @onclick="CancelEdit" class="btn btn-primary">Cancel</button>
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger">@errorMessage</p>
+    }
+
+    <div class="bloc">
+    <h5>Add a New Category</h5> 
+    <form @onsubmit="AddCategory">
+        <input type="number" class="form-group" @bind="newCategoryId" placeholder="Category ID" />
+        <input type="text" @bind="newCategoryName" placeholder="Category Name" />
+        <button type="submit" class="btn btn-success">Add</button>
     </form>
-}
-
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <p class="text-danger">@errorMessage</p>
-}
-
-<p></p>
-<h5>Add a New Category</h5> 
-<form @onsubmit="AddCategory">
-    <input type="number" class="form-group" @bind="newCategoryId" placeholder="Category ID" />
-    <input type="text" @bind="newCategoryName" placeholder="Category Name" />
-    <button type="submit" class="btn btn-primary">Add</button>
-</form>
-
-
-@if (searchResultCategory != null)
-{
-    <div>
-        <p></p>
-        <h6>Search Result:</h6>
-        <p>@searchResultCategory.Name</p>
     </div>
-}
-else if (searchAttempted)
-{
-    <div>
-        <p></p>
-        <h6>Search Result:</h6>
-        <p>Category not found.</p>
-    </div>
-}
+
+</div>
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr); /* Two equal columns */
+        gap: 20px; /* Gap between columns */
+    }
+
+    .bloc {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .card{
+        color: black;
+    }
+
+    .badge {
+        color: #fff !important; /* Ensuring text is white */
+        background-color: #007bff !important; /* Ensuring background color is primary */
+    }
+
+    .list-group-item a {
+        text-decoration: none;
+        color: white; /* Text color for badge links */
+        /* font-size: 10px; */
+    }
+
+    .list-group-item button{
+        float: right; /* Align buttons to the right */
+        margin-left: 10px; /* Add margin between buttons if needed */
+    }
+</style>
 
 @code {
     List<Category> categories /*= new List<Category>

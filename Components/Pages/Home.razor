@@ -27,32 +27,32 @@
 		<h4>Balance</h4>
 		<p class="@GetBalanceColorClass()">@balance.ToString("0.00") RON</p>
     </div>
-    <div class="highest_expenses">
+    <div class="highest_expenses bg-danger text-white">
         <h4>Highest Expense</h4>
         <p>@highestExpenseCategoryName</p>
     </div>
-    <div class="incomes">
+    <div class="incomes bg-success text-white">
         <h4>Incomes</h4>
-        <p> @startDateIncomes.ToShortDateString() - @endDateIncomes.ToShortDateString()</p>
+        <p class="dates"> @startDateIncomes.ToShortDateString() - @endDateIncomes.ToShortDateString()</p>
         <p>@resultIncomes RON</p>
-        <h5>Current Month</h5>
+        <h5 class="dates">Current Month</h5>
         <p>@resultIncomesMonth.ToString("0.00") RON</p>
     </div>
-    <div class="expenses">
+    <div class="expenses bg-primary text-white">
         <h4>Expenses</h4>
-        <p> @startDateExpenses.ToShortDateString() - @endDateExpenses.ToShortDateString()</p>
+        <p class="dates"> @startDateExpenses.ToShortDateString() - @endDateExpenses.ToShortDateString()</p>
         <p>@resultExpenses RON</p>
-        <h5>Current Month</h5>
+        <h5 class="dates">Current Month</h5>
         <p>@resultExpensesMonth.ToString("0.00") RON</p>
     </div>
-    <div class="trueExpenses">
+    <div class="trueExpenses bg-secondary text-white">
         <h4>Planned Expenses</h4>
-        <p> @startDateExpenses.ToShortDateString() - @endDateExpenses.ToShortDateString()</p>
+        <p class="dates"> @startDateExpenses.ToShortDateString() - @endDateExpenses.ToShortDateString()</p>
         <p>@resultPlannedExpenses.ToString("0.00") RON</p>
     </div>
-    <div class="falseExpenses">
+    <div class="falseExpenses bg-secondary text-white">
         <h4>Unplanned Expenses</h4>
-        <p> @startDateExpenses.ToShortDateString() - @endDateExpenses.ToShortDateString()</p>
+        <p class="dates"> @startDateExpenses.ToShortDateString() - @endDateExpenses.ToShortDateString()</p>
         <p>@resultUnplannedExpenses.ToString("0.00") RON</p>
     </div>
 </div>
@@ -68,6 +68,29 @@
         padding: 10px;
         border: 1px solid #ccc;
         border-radius: 5px;
+    }
+
+        .expenses.bg-primary {
+            background-color: var(--bs-primary) !important;
+        }
+
+        .incomes.bg-success {
+            background-color: var(--bs-success) !important;
+		}
+
+		.highest_expenses.bg-primary{
+            background-color: var(--bs-danger) !important;
+        }
+
+        .trueExpenses.bg-secondary, .falseExpenses.bg-secondary {
+            background-color: var(--bs-secondary) !important;
+        }
+
+    .text-white {
+        color: white !important;
+    }
+    .dates{
+        color:lightgray;
     }
 </style>
 
